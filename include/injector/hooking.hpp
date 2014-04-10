@@ -196,12 +196,21 @@ namespace injector
     
     
     
+    // Helper structure to help calling back what was there before a hook
+    // e.g. hb.fun = MakeCALL(0x0, raw_ptr(my_hook));
+    template<class FuncType>
+    struct hook_back
+    {
+        typedef FuncType func_type;
+        
+        FuncType fun;
+        
+        hook_back() : fun(nullptr)
+        {}
+    };
     
     
-    
-    
-    
-    
+
     
     /*
      *  Basic interface for the RAII wrappers present on this header
