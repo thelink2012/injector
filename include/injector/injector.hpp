@@ -251,8 +251,10 @@ union auto_ptr_cast
 
 	template<class T>
 	operator T*() { return reinterpret_cast<T*>(p); }
+	/*
 	template<class T>
 	operator const T*() { return reinterpret_cast<const T*>(p); }
+	*/
 };
 
 /*
@@ -359,7 +361,7 @@ inline memory_pointer_raw  raw_ptr(T p)
  *      Lazy pointer, where it's final value will get evaluated only once when finally needed.
  */
 template<uintptr_t addr>
-struct lazy_pointer()
+struct lazy_pointer
 {
     // Returns the final pointer
     static auto_ptr_cast xget()
