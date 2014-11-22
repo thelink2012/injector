@@ -25,6 +25,7 @@
  *
  */
 #pragma once
+#define INJECTOR_HAS_INJECTOR_HPP
 #include <windows.h>
 #include <cstdint>
 #include <cstdio>
@@ -172,13 +173,15 @@ union basic_memory_pointer
         bool operator>=(const basic_memory_pointer& rhs) const
         { return this->a >=rhs.a; }
         
-        bool is_null()      { return this->p != nullptr; }
-        uintptr_t as_int()  { return this->a; }
+        bool is_null()      { return this->p == nullptr; }
+        uintptr_t as_int()  { return this->a; }	// does not perform translation
+
+
 
 #if __cplusplus >= 201103L || _MSC_VER >= 1800  // MSVC 2013
         /* Conversion to other types */
         explicit operator uintptr_t()
-        { return this->a; }
+        { return this->a; }	// does not perform translation
         explicit operator bool()
         { return this->p != nullptr; }
 #else
@@ -244,7 +247,7 @@ union memory_pointer_tr
         memory_pointer_tr operator/(const uintptr_t& rhs) const
         { return memory_pointer_raw(this->a / rhs); }
 
-        bool is_null()      { return this->p != nullptr; }
+        bool is_null()      { return this->p == nullptr; }
         uintptr_t as_int()  { return this->a; }
         
 #if __cplusplus >= 201103L
@@ -599,6 +602,12 @@ template<class T>
 inline memory_pointer_raw  raw_ptr(T p)
 {
     return memory_pointer_raw(p);
+}
+
+template<class Tr>
+inline memory_pointer_raw  raw_ptr(basic_memory_pointer<Tr> p)
+{
+	return raw_ptr(p.get());
 }
 
 template<uintptr_t addr>
