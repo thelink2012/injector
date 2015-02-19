@@ -395,7 +395,29 @@ inline T ReadMemory(memory_pointer_tr addr, bool vp = false)
     return ReadObject(addr, value, vp);
 }
 
-
+/*
+ *  AdjustPointer 
+ *      Searches in the range [@addr, @addr + @max_search] for a pointer in the range [@default_base, @default_end] and replaces
+ *      it with the proper offset in the pointer @replacement_base.
+ *      Does memory unprotection if @vp is true.
+ */
+ inline memory_pointer_raw AdjustPointer(memory_pointer_tr addr,
+                                         memory_pointer_raw replacement_base, memory_pointer_tr default_base, memory_pointer_tr default_end,
+                                         size_t max_search = 6, bool vp = true)
+ {
+    scoped_unprotect xprotect(addr, vp? max_search + sizeof(void*) : 0);
+    for(size_t i = 0; i < max_search; ++i)
+    {
+    	memory_pointer_raw ptr = ReadMemory<void*>(addr + i);
+        if(ptr >= default_base.get() && ptr < default_end.get())
+        {
+            auto result = replacement_base + (ptr - default_base.get());
+            WriteMemory<void*>(addr + i, result.get());
+            return result;
+        }
+    }
+    return nullptr;
+ }
 
 
 
