@@ -5,10 +5,13 @@
 
 // concept:
 // @ injector::is_pointer<T>
-// @ way to do [+ - / *] operations on itself and on uintptrs (!! += instead and + implemented outside with is_pointer etc)
+// @ way to do [++ -- + - / *] operations on itself and on uintptrs (!! += instead and + implemented outside with is_pointer etc)
 // @ way to do [< <= == != >= >] on itself. (!! something like above?)
 // @ explicit operator bool
-// @ explicit operator uintptr is not required
+// @ explicit operator intptr and uintptr is required but does not mean it is accessible by this process
+//   it should return the actual address on whatever process it is at. TRANSLATORS SHOULD RETURN THE REAL ADDRESS HERE!
+// @ some method that returns the fake address!!
+// @ explicit
 //
 // @ read / write (maybe no actual need for T&& on things like process pointers; no way to move)
 //
@@ -61,6 +64,11 @@ namespace injector
                 *reinterpret_cast<T*>(this->p) = value;
             }
 
+            void fill(std::uint8_t value, std::size_t size)
+            {
+                std::memset(this->p, value, size);
+            }
+
         public:
             template<typename MemoryPointer>
             friend class scoped_unprotect;
@@ -84,10 +92,40 @@ namespace injector
                 return !!this->p;
             }
 
-            // (not compulsory / not part of concept)
+            explicit operator intptr_t() const
+            {
+                return (intptr_t)(this->a);
+            }
+
             explicit operator uintptr_t() const
             {
                 return this->a;
+            }
+
+            raw_ptr& operator++()
+            {
+                ++this->a;
+                return *this;
+            }
+
+            raw_ptr operator++(int)
+            {
+                raw_ptr old(*this);
+                ++(*this);
+                return old;
+            }
+
+            raw_ptr& operator--()
+            {
+                --this->a;
+                return *this;
+            }
+
+            raw_ptr operator--(int)
+            {
+                raw_ptr old(*this);
+                --(*this);
+                return old;
             }
 
             raw_ptr operator+(const raw_ptr& rhs) const

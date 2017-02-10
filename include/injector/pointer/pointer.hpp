@@ -35,6 +35,29 @@ namespace injector
     template<typename Input, typename Enable = void>
     struct conv_pointer;
 
+
+    template<typename... Types>
+    struct are_same_raw;
+
+    template<typename T, typename U, typename... Types>
+    struct are_same_raw<T, U, Types...>
+        : std::bool_constant<
+                std::is_same<typename T::fast_ptr, typename U::fast_ptr>::value &&
+                are_same_raw<U, Types...>::value
+        >
+    {};
+
+    template<typename T>
+    struct are_same_raw<T> : std::bool_constant<true>
+    {};
+
+    template<typename... Types>
+    inline constexpr bool f_are_same_raw(Types&&...)
+    {
+        return are_same_raw<std::decay_t<Types>...>::value;
+    }
+
+
     /// Converts the `MemoryPointer` `ptr` into another more efficient `MemoryPointer` type.
     ///
     /// In case `ptr` is the maximum archiveable efficiency, the same value and type are returned.
@@ -46,12 +69,14 @@ namespace injector
     template<typename MemoryPointer>
     auto faster_ptr(const MemoryPointer& ptr)
     {
-        return conv_pointer<T>::convert(ptr);
+        return conv_pointer<MemoryPointer>::convert(ptr);
     }
 
     /// Converts the value `x` into some `MemoryPointer` type, usually a`injector::raw_ptr`.
     ///
-    /// @tparam T   Must implement the `IntoPointer` (`conv_pointer`) concept.
+    /// If `x` is already a `MemoryPointer`, this function has the same effect as `injector::faster_ptr()`.
+    ///
+    /// @tparam T   Must implement the `IntoPointer` or `IntoFasterPointer` (i.e. `conv_pointer`) concept.
     ///
     /// @see conv_pointer
     /// @see faster_ptr
