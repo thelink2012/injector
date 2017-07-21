@@ -101,7 +101,7 @@ namespace injector
             {
                 // Construct the reg_pack structure on the stack
                 pushad              // Pushes general purposes registers to reg_pack
-                add [esp+12], 4     // Add 4 to reg_pack::esp 'cuz of our return pointer, let it be as before this func is called
+                add dword ptr[esp+12], 4     // Add 4 to reg_pack::esp 'cuz of our return pointer, let it be as before this func is called
                 pushfd              // Pushes EFLAGS to reg_pack
 
                 // Call wrapper sending reg_pack as parameter
@@ -110,7 +110,7 @@ namespace injector
                 add esp, 4
 
                 // Destructs the reg_pack from the stack
-                sub [esp+12+4], 4   // Fix reg_pack::esp before popping it (doesn't make a difference though) (+4 because eflags)
+                sub dword ptr[esp+12+4], 4   // Fix reg_pack::esp before popping it (doesn't make a difference though) (+4 because eflags)
                 popfd               // Warning: Do not use any instruction that changes EFLAGS after this (-> sub affects EF!! <-)
                 popad
 
