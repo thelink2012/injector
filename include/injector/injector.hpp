@@ -733,8 +733,16 @@ inline bool game_version_manager::Detect()
             game = 'I', major = 1, minor = 0, majorRevision = 0, minorRevision = 7, region = 'U', steam = false;
             return true;
 
+        case 0xCF529E:  // GTA IV 1.0.0.8 US
+            game = 'I', major = 1, minor = 0, majorRevision = 0, minorRevision = 8, region = 'U', steam = false;
+            return true;
+
         case 0xD0AF06:  // GTA EFLC 1.1.2.0 US
             game = 'E', major = 1, minor = 1, majorRevision = 2, minorRevision = 0, region = 'U', steam = false;
+            return true;
+
+        case 0xCF4BAD:  // GTA EFLC 1.1.3.0 US
+            game = 'E', major = 1, minor = 1, majorRevision = 3, minorRevision = 0, region = 'U', steam = false;
             return true;
 
         default:
